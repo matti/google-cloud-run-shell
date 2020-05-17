@@ -1,0 +1,11 @@
+version: "3.7"
+
+services:
+  app:
+    build: .
+    image: gcr.io/${GOOGLE_PROJECT}/shell
+    environment:
+      - CHISEL_SERVER=${CHISEL_SERVER}
+    ports:
+      - 2222:2222
+      - 8080:8080

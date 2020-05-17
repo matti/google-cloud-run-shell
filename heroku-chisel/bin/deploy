@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+HEROKU_APP_NAME=${HEROKU_APP_NAME:-$1}
+export HEROKU_APP_NAME
+
+if [ "$HEROKU_APP_NAME" = "" ]; then
+  echo "HEROKU_APP_NAME missing"
+  exit 1
+fi
+
+heroku container:login
+heroku apps:create --region eu "$HEROKU_APP_NAME"
+
+docker-compose build
+docker-compose push
+
+heroku container:release -a "$HEROKU_APP_NAME" web
+
+heroku logs --tail -a "$HEROKU_APP_NAME"

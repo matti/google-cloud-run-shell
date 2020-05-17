@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+GOOGLE_PROJECT=${GOOGLE_PROJECT:-$1}
+CHISEL_SERVER=${CHISEL_SERVER:-$2}
+export GOOGLE_PROJECT
+export CHISEL_SERVER
+
+if [ "$GOOGLE_PROJECT" = "" ]; then
+  echo "GOOGLE_PROJECT missing"
+  exit 1
+fi
+
+if [ "$CHISEL_SERVER" = "" ]; then
+  echo "CHISEL_SERVER missing"
+  exit 1
+fi
+
+docker-compose build
+docker-compose push
+
+gcloud run deploy shell \
+  --platform managed \
+  --region europe-west1 \
+  --image "gcr.io/$GOOGLE_PROJECT/shell" \
+  --allow-unauthenticated \
+  --set-env-vars CHISEL_SERVER=$CHISEL_SERVER \
+  --cpu 2 \
+  --memory 2048 \
+  --max-instances 1
+
+url=$(gcloud run services describe shell \
+  --platform=managed \
+  --region=europe-west1 \
+  --format 'value(status.url)')
+
+while true; do
+  >/dev/null 2>&1 curl "$url"
+  echo "keeping $url warm"
+  sleep 1
+done

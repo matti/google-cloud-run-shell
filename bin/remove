@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+gcloud run services delete shell \
+  --platform managed \
+  --region europe-west1 \
+  --quiet

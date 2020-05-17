@@ -1,0 +1,6 @@
+version: "3.7"
+
+services:
+  app:
+    build: .
+    image: registry.heroku.com/${HEROKU_APP_NAME}/web
